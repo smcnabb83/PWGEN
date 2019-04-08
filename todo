@@ -1,0 +1,5 @@
+Implement babel & Webpack to take advantage of modern ES features
+Move configuration to external file (currently hardcoded)
+Update node.js packages to more recent versions
+Clean up logic in index.js
+Make pages look decent
