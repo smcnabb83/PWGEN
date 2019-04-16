@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var fs = require('fs');
+var csv = require('csv-parser');
 
 /* GET home page. */
 var rand = function (max) {
@@ -12,58 +14,22 @@ var appendDigits = function (string) {
 }
 
 router.get('/', function (req, res, next) {
-  var sql = require('mssql/msnodesqlv8');
   var indexMax = null;
   var wordRetrieved = null;
+  const results = [];
+  fs.createReadStream('words.csv').pipe(csv()).on('data', (data) => results.push(data)).on('end', () =>{
 
-  //TODO: Move this into a config file.
-  var config = {
-    driver: 'msnodesqlv8',
-    server: '',
-    database: '',
-    options: {
-      trustedConnection: true
+    
+    var passString = '';
+    for(var i = 0; i < 5; i++){
+      passString += results[rand(results.length)].word + (i === 4 ? '' : '-');
     }
-  };
+    
+    console.log(results[0].word);
+    console.log(passString);
+    res.render('index', {pass: passString});
+  });
 
-
-  sql.connect(config, function (err) {
-    if (err) {
-      if (err.code == 'ELOGIN') {
-        res.render("You do not have permission to access this database");
-        sql.close();
-      } else {
-        res.render("Miscellaneous errors: " + err.code.toString() + " " + err.message.toString());
-        sql.close();
-      }
-    }
-    var request = new sql.Request();
-    //TODO: Refactor to avoid excessive callbacks.
-    request.query('SELECT MAX([index]) as i FROM dbo.WordList WHERE word IS NOT NULL', function (err, recordset) {
-      if (err) {
-        console.log(err.name, err.code, err.message);
-        res.render("Query error: " + err.code.toString + " " + err.message.toString());
-        sql.close();
-      } else {
-        indexMax = recordset['recordset'][0]['i'];
-        var request2 = new sql.Request();
-        request2.query('SELECT word FROM dbo.WordList WHERE [index] = ' + rand(indexMax), function (err, recordset) {
-          if (err) {
-            console.log(err.name, err.code, err.message);
-            res.render("Query error: " + err.code.toString + " " + err.message.toString());
-            sql.close();
-          } else {
-            wordRetrieved = recordset['recordset'][0]['word'];
-            res.render('index', {
-              title: appendDigits(wordRetrieved)
-            });
-            sql.close();
-          }
-        })
-
-      }
-    });
-  })
 });
 
 module.exports = router;

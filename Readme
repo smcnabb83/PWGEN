@@ -1,3 +1,2 @@
-This password generator does not generate strong passwords. It is used to generate passwords that are simple for people to remember
-that are not quite as bad as "password1." As such, these passwords should NEVER be used for regulating access to sensitive systems.
-Instead, the use cases for these are primarily granting workers simple access to devices with limited permissions. 
+This password generator is an automated variant of the diceware method of password generation. Instead of only having a list of 7776 possible words, 
+this is using a list of the 20,000 most common english words. 
